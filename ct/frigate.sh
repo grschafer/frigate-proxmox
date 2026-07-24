@@ -126,17 +126,13 @@ apply_passthrough() {
   if [ "$GPU_PASSTHROUGH" = "yes" ]; then
     for dev in /dev/dri/*; do
       local major minor
+      # Skip non-device entries
+      [ -c "$dev ] || continue
       major=$(stat -c '%Hr' "$dev" 2>/dev/null | xargs printf '%d')
       minor=$(stat -c '%Lr' "$dev" 2>/dev/null | xargs printf '%d')
       echo "lxc.cgroup2.devices.allow: c ${major}:${minor} rwm" >> "$conf"
       echo "lxc.mount.entry: ${dev} dev/dri/$(basename $dev) none bind,optional,create=file 0 0" >> "$conf"
     done
-    local video_gid render_gid
-    video_gid=$(getent group video 2>/dev/null | cut -d: -f3 || echo "44")
-    render_gid=$(getent group render 2>/dev/null | cut -d: -f3 || echo "104")
-    pct exec "$ctid" -- sh -c "groupadd -g ${video_gid} video 2>/dev/null || true" >/dev/null 2>&1
-    pct exec "$ctid" -- sh -c "groupadd -g ${render_gid} render 2>/dev/null || true" >/dev/null 2>&1
-    pct exec "$ctid" -- sh -c "usermod -aG video,render root 2>/dev/null || true" >/dev/null 2>&1
     msg_ok "GPU (/dev/dri) passthrough configured"
   fi
 
@@ -167,6 +163,16 @@ apply_passthrough() {
     echo "lxc.mount.entry: /dev/apex_0 dev/apex_0 none bind,optional,create=file 0 0" >> "$conf"
     msg_ok "Google Coral PCIe passthrough configured"
   fi
+}
+
+setup_group_membership() {
+  local ctid="$1"
+  local video_gid render_gid
+  video_gid=$(getent group video 2>/dev/null | cut -d: -f3 || echo "44")
+  render_gid=$(getent group render 2>/dev/null | cut -d: -f3 || echo "104")
+  pct exec "$ctid" -- sh -c "groupadd -g ${video_gid} video 2>/dev/null || true" >/dev/null 2>&1
+  pct exec "$ctid" -- sh -c "groupadd -g ${render_gid} render 2>/dev/null || true" >/dev/null 2>&1
+  pct exec "$ctid" -- sh -c "usermod -aG video,render root 2>/dev/null || true" >/dev/null 2>&1
 }
 
 # ─────────────────────────────────────────────
@@ -348,6 +354,10 @@ build_container() {
   pct start "$CTID"
   sleep 8
   msg_ok "Container started"
+
+  msg_info "Setting group membership"
+  setup_group_membership "$CTID"
+  msg_ok "Group membership configured"
 
   msg_info "Waiting for network"
   local tries=0
