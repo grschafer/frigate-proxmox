@@ -127,7 +127,7 @@ apply_passthrough() {
     for dev in /dev/dri/*; do
       local major minor
       # Skip non-device entries
-      [ -c "$dev ] || continue
+      [ -c "$dev" ] || continue
       major=$(stat -c '%Hr' "$dev" 2>/dev/null | xargs printf '%d')
       minor=$(stat -c '%Lr' "$dev" 2>/dev/null | xargs printf '%d')
       echo "lxc.cgroup2.devices.allow: c ${major}:${minor} rwm" >> "$conf"
