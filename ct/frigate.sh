@@ -5,7 +5,7 @@
 # License: MIT | https://github.com/Mati-l33t/frigate-proxmox/raw/main/LICENSE
 # Source: https://frigate.video/ | Github: https://github.com/blakeblackshear/frigate
 
-set -euo pipefail
+set -euxo pipefail
 
 INSTALL_SCRIPT="https://raw.githubusercontent.com/Mati-l33t/frigate-proxmox/main/install/frigate-install.sh"
 
