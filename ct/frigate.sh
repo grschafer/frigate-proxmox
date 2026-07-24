@@ -126,8 +126,8 @@ apply_passthrough() {
   if [ "$GPU_PASSTHROUGH" = "yes" ]; then
     for dev in /dev/dri/*; do
       local major minor
-      major=$(stat -c '%t' "$dev" 2>/dev/null | xargs printf '%d')
-      minor=$(stat -c '%T' "$dev" 2>/dev/null | xargs printf '%d')
+      major=$(stat -c '%Hr' "$dev" 2>/dev/null | xargs printf '%d')
+      minor=$(stat -c '%Lr' "$dev" 2>/dev/null | xargs printf '%d')
       echo "lxc.cgroup2.devices.allow: c ${major}:${minor} rwm" >> "$conf"
       echo "lxc.mount.entry: ${dev} dev/dri/$(basename $dev) none bind,optional,create=file 0 0" >> "$conf"
     done
@@ -149,8 +149,8 @@ apply_passthrough() {
         usb_dev="/dev/bus/usb/${bus}/${dev_path}"
         if [ -e "$usb_dev" ]; then
           local major minor
-          major=$(stat -c '%t' "$usb_dev" 2>/dev/null | xargs printf '%d')
-          minor=$(stat -c '%T' "$usb_dev" 2>/dev/null | xargs printf '%d')
+          major=$(stat -c '%Hr' "$usb_dev" 2>/dev/null | xargs printf '%d')
+          minor=$(stat -c '%Lr' "$usb_dev" 2>/dev/null | xargs printf '%d')
           echo "lxc.cgroup2.devices.allow: c ${major}:${minor} rwm" >> "$conf"
           echo "lxc.mount.entry: ${usb_dev} dev/bus/usb/${bus}/${dev_path} none bind,optional,create=file 0 0" >> "$conf"
         fi
@@ -161,8 +161,8 @@ apply_passthrough() {
 
   if [ "$CORAL_PCIE_PASSTHROUGH" = "yes" ] && [ -e /dev/apex_0 ]; then
     local major minor
-    major=$(stat -c '%t' /dev/apex_0 2>/dev/null | xargs printf '%d')
-    minor=$(stat -c '%T' /dev/apex_0 2>/dev/null | xargs printf '%d')
+    major=$(stat -c '%Hr' /dev/apex_0 2>/dev/null | xargs printf '%d')
+    minor=$(stat -c '%Lr' /dev/apex_0 2>/dev/null | xargs printf '%d')
     echo "lxc.cgroup2.devices.allow: c ${major}:${minor} rwm" >> "$conf"
     echo "lxc.mount.entry: /dev/apex_0 dev/apex_0 none bind,optional,create=file 0 0" >> "$conf"
     msg_ok "Google Coral PCIe passthrough configured"
