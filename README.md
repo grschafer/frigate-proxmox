@@ -26,7 +26,7 @@ A standalone Proxmox VE script that installs [Frigate NVR](https://frigate.video
 Run the following command in your **Proxmox host shell**:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Mati-l33t/frigate-proxmox/main/ct/frigate.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/grschafer/frigate-proxmox/main/ct/frigate.sh)"
 ```
 
 The install takes 15–30 minutes depending on your hardware. At the end, the script will display:
